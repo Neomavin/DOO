@@ -1,4 +1,4 @@
-const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://192.168.1.3:4000';
 
 // Algunos entornos todavía especifican /api aunque el backend no tenga prefijo.
 // Normalizamos quitando el /api final para evitar 404 en auth/login o auth/register.
