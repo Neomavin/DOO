@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "Delivery Ocotepeque",
+    "slug": "delivery-ocotepeque",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#14213d"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.deliveryocotepeque.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Necesitamos tu ubicación para mostrarte restaurantes cercanos y calcular tiempos de entrega precisos."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#14213d"
+      },
+      "package": "com.deliveryocotepeque.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/icon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Permitir que Delivery Ocotepeque use tu ubicación para mostrarte restaurantes cercanos y calcular tiempos de entrega."
+        }
+      ]
+    ]
+  }
+}

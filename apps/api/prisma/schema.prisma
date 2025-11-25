@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite doesn't support native enums, so we use String with validation in the application
+// Role: CLIENT | RESTAURANT | COURIER | ADMIN
+// ProductStatus: PENDING | APPROVED | REJECTED
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  phone        String?
+  avatarUrl    String?
+  role         String    @default("CLIENT") // CLIENT | RESTAURANT | COURIER | ADMIN
+  pushToken    String?
+  isAvailable  Boolean?  @default(false)
+  vehicleType  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  addresses      Address[]
+  cartItems      CartItem[]
+  orders         Order[]
+  courierOrders  Order[]    @relation("CourierOrders")
+  notifications  Notification[]
+  refreshTokens  RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+model Address {
+  id        String  @id @default(uuid())
+  userId    String
+  label     String
+  line1     String
+  line2     String?
+  city      String
+  lat       Float
+  lng       Float
+  isDefault Boolean @default(false)
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+model Category {
+  id       String @id @default(uuid())
+  name     String
+  slug     String @unique
+  imageUrl String
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Restaurant {
+  id         String  @id @default(uuid())
+  name       String
+  slug       String  @unique
+  logoUrl    String
+  bannerUrl  String
+  rating     Float   @default(0)
+  etaMinutes Int     @default(30)
+  lat        Float
+  lng        Float
+  isOpen     Boolean @default(true)
+  openTime   String? @default("08:00")
+  closeTime  String? @default("22:00")
+  closedDays String? @default("")
+  createdAt  DateTime @default(now())
+
+  // Relations
+  products Product[]
+  orders   Order[]
+
+  @@map("restaurants")
+}
+
+model Product {
+  id              String   @id @default(uuid())
+  restaurantId    String
+  categoryId      String
+  name            String
+  description     String
+  priceCents      Int
+  imageUrl        String
+  isFeatured      Boolean  @default(false)
+  available       Boolean  @default(true)
+  prepTimeMinutes Int?     @default(15)
+  ingredients     String?
+  status          String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category   Category   @relation(fields: [categoryId], references: [id])
+  cartItems  CartItem[]
+
+  @@map("products")
+}
+
+model CartItem {
+  id        String @id @default(uuid())
+  userId    String
+  productId String
+  quantity  Int    @default(1)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id               String        @id @default(uuid())
+  userId           String
+  restaurantId     String
+  addressId        String
+  courierId        String?
+  status           String        @default("PENDING")
+  items            String
+  subtotalCents    Int
+  taxCents         Int
+  deliveryCents    Int
+  totalCents       Int
+  paymentMethod    String
+  confirmationCode String?
+  notes            String?
+  acceptedAt       DateTime?
+  pickedUpAt       DateTime?
+  deliveredAt      DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  user       User       @relation(fields: [userId], references: [id])
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  address    Address    @relation(fields: [addressId], references: [id])
+  courier    User?      @relation("CourierOrders", fields: [courierId], references: [id])
+
+  @@map("orders")
+  @@index([courierId])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  title     String
+  body      String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@map("password_reset_tokens")
+}

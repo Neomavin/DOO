@@ -1,0 +1,28 @@
+{
+  "name": "delivery-ocotepeque",
+  "version": "1.0.0",
+  "description": "Food delivery app for Ocotepeque, Honduras",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter api dev\" \"pnpm --filter mobile start\"",
+    "build": "pnpm --filter api build && pnpm --filter mobile build",
+    "lint": "pnpm --filter api lint && pnpm --filter mobile lint",
+    "test": "pnpm --filter api test",
+    "db:push": "pnpm --filter api db:push",
+    "db:seed": "pnpm --filter api db:seed",
+    "setup": "pnpm install && pnpm db:push && pnpm db:seed"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "dependencies": {
+    "@babel/runtime": "^7.28.4",
+    "@prisma/client": "^5.22.0",
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "prisma": "^5.7.0"
+  }
+}
